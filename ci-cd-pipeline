@@ -1,0 +1,35 @@
+pipeline {
+    agent any
+
+    environment {
+        AWS_ACCESS_KEY_ID = credentials('AWS_ACCESS_KEY_ID')
+        AWS_SECRET_ACCESS_KEY = credentials('AWS_SECRET_ACCESS_KEY')
+        S3_BUCKET = "my-ci-cd-artifacts"
+    }
+
+    stages {
+        stage('Clone Repository') {
+            steps {
+                git 'https://github.com/your-username/ci-cd-pipeline.git'
+            }
+        }
+
+        stage('Build') {
+            steps {
+                sh 'mvn clean package'  // Use 'npm install' for Node.js apps
+            }
+        }
+
+        stage('Upload to S3') {
+            steps {
+                sh 'aws s3 cp target/*.jar s3://$S3_BUCKET/'
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                echo 'Deploying application...'
+            }
+        }
+    }
+}
